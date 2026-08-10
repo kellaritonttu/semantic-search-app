@@ -173,13 +173,11 @@ A confirmation message appears inline on success.
 
 ## Prerequisites
 
-- [uv](https://github.com/astral-sh/uv) — Python package manager
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [uv](https://github.com/astral-sh/uv) _(Python package manager)_
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) _(for local development)_
 - [Minikube](https://minikube.sigs.k8s.io/) _(for Minikube deployment)_
 - [kubectl](https://kubernetes.io/docs/tasks/tools/) _(for Kubernetes deployments)_
 - [Terraform](https://developer.hashicorp.com/terraform) _(for infrastructure provisioning)_
-- [Helm](https://helm.sh/) _(for Kubernetes package management)_
-- [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) _(for GitOps deployment)_
 - [gcloud CLI](https://cloud.google.com/sdk/docs/install) _(for GCP deployment)_
 
 ---
@@ -187,13 +185,13 @@ A confirmation message appears inline on success.
 ## Running the Project
 
 <details>
-<summary>Option 1: Local Development (Docker Compose)</summary>
+<summary>Option 1: Docker Compose</summary>
 
-#### Prerequisites
+Used primarily for fast local development and feature testing.
 
-- Docker & Docker Compose
+> Prerequisites: Docker & Docker Compose
 
-#### 1. Configure Environment
+### 1. Configure Environment
 
 Copy the example environment file:
 
@@ -203,44 +201,90 @@ cp .env.example .env
 
 > Modify secret keys and database credentials inside `.env`
 
-#### 2. Start Services
+### 2. Start Services
 
 ```bash
 docker compose up --build -d
 ```
 
-#### 3. Access the Application
+### 3. Access the Application
 
 Open your browser and navigate to `http://localhost:8080`.
 
 </details>
 
 <details>
-<summary>Option 2: GCP GKE</summary>
+<summary>Option 2: Minikube</summary>
 
-#### Prerequisites
+Used primarily for testing Kubernetes deployment locally before pushing to GCP.
 
-- gcloud CLI (authenticated), kubectl, Terraform, Helm
+> Prerequisites: Docker, Minikube, kubectl, Terraform
 
-#### 1. Authenticate with GCP
+### 1. Start Minikube
 
 ```bash
-gcloud auth application-default login
-gcloud config set project <your-project-id>
+minikube start
 ```
 
-#### 2. Configure Terraform
+### 2. Configure Terraform
 
 ```bash
-cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+cp terraform/minikube/terraform.tfvars.example terraform/minikube/terraform.tfvars
+```
+
+> Fill in your application secrets
+
+### 3. Provision Infrastructure
+
+```bash
+cd terraform/minikube
+terraform init
+terraform apply
+```
+
+Terraform provisions:
+- Kubernetes namespace and secrets
+- ArgoCD installation
+- ArgoCD Application pointing to this repository
+
+### 4. Access the Application
+
+After Terraform complete provisioning we can start a port-forwarding process to gateway.
+
+```bash
+kubectl port-forward service/gateway 8080:8080 -n search-service
+```
+
+Open `http://localhost:8080` in your browser.
+
+</details>
+
+<details>
+<summary>Option 3: GCP GKE</summary>
+
+
+> Prerequisites: gcloud CLI (authenticated), kubectl, Terraform
+
+> [!IMPORTANT]
+> Authenticate with GCP before running Terraform:
+> ```bash
+> gcloud auth application-default login
+> gcloud config set project <your-project-id>
+> ```
+
+
+### 1. Configure Terraform
+
+```bash
+cp terraform/gcp/terraform.tfvars.example terraform/gcp/terraform.tfvars
 ```
 
 > Fill in your GCP project ID, region, zone, cluster name, and application secrets
 
-#### 3. Provision Infrastructure
+### 2. Provision Infrastructure
 
 ```bash
-cd terraform
+cd terraform/gcp
 terraform init
 terraform apply
 ```
@@ -250,16 +294,20 @@ Terraform provisions:
 - Node pool with configured machine type
 - Static external IP for the gateway LoadBalancer
 - Kubernetes namespace and secrets
+- ArgoCD installation
+- ArgoCD Application pointing to this repository
 
-#### 6. Access the Application
+### 3. Access the Application
 
-The gateway is exposed via a GCP LoadBalancer. Get the external IP:
+Terraform prints the external IP at the end of `terraform apply`:
 
 ```bash
-kubectl get service gateway -n semantic-search-ns
+Outputs:
+
+app_load_balancer_ip = "x.x.x.x"
 ```
 
-Open `http://<EXTERNAL-IP>` in your browser.
+Open `http://<app_load_balancer_ip>` in your browser.
 
 </details>
 
