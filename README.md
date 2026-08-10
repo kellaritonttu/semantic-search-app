@@ -265,15 +265,14 @@ Open `http://localhost:8080` in your browser.
 
 > Prerequisites: gcloud CLI (authenticated), kubectl, Terraform
 
-> [!IMPORTANT]
-> Authenticate with GCP before running Terraform:
-> ```bash
-> gcloud auth application-default login
-> gcloud config set project <your-project-id>
-> ```
+### 1. Authenticate with GCP before running Terraform:
 
+```bash
+gcloud auth application-default login
+gcloud config set project <your-project-id>
+```
 
-### 1. Configure Terraform
+### 2. Configure Terraform
 
 ```bash
 cp terraform/gcp/terraform.tfvars.example terraform/gcp/terraform.tfvars
@@ -281,7 +280,7 @@ cp terraform/gcp/terraform.tfvars.example terraform/gcp/terraform.tfvars
 
 > Fill in your GCP project ID, region, zone, cluster name, and application secrets
 
-### 2. Provision Infrastructure
+### 3. Provision Infrastructure
 
 ```bash
 cd terraform/gcp
@@ -297,13 +296,11 @@ Terraform provisions:
 - ArgoCD installation
 - ArgoCD Application pointing to this repository
 
-### 3. Access the Application
+### 4. Access the Application
 
 Terraform prints the external IP at the end of `terraform apply`:
 
 ```bash
-Outputs:
-
 app_load_balancer_ip = "x.x.x.x"
 ```
 
@@ -317,11 +314,20 @@ Open `http://<app_load_balancer_ip>` in your browser.
 
 The project uses a dual CI/CD setup:
 
-### Jenkins (Primary)
+<details>
+<summary>Jenkins (Primary)</summary>
 
 Self-hosted Jenkins running via Docker Compose with Docker-in-Docker, configured entirely as code using JCasC (Jenkins Configuration as Code).
 
-**Setup:**
+### Setup
+
+1. Copy and fill in credentials:
+
+```bash
+cp jenkins/.env.example jenkins/.env
+```
+
+2. Start Jenkins:
 
 ```bash
 cd jenkins
@@ -330,36 +336,27 @@ docker compose up -d --build
 
 Access Jenkins at `http://localhost:8080`.
 
-Copy and fill in credentials:
+### Pipelines
 
-```bash
-cp jenkins/.env.example jenkins/.env
-```
+| Pipeline | Description |
+|---|---|
+| `services/gateway` | Build, test, report coverage |
+| `services/search_service` | Build, test, report coverage |
+| `services/document_service` | Build, test, report coverage |
+| `services/user_service` | Build, test, report coverage |
+| `services/model_service` | Build, test, report coverage |
+| `build-and-deploy` | Build all images, push to GHCR, update `helm/values.yaml` |
 
-```env
-JENKINS_ADMIN_PASSWORD=your_password
-GITHUB_USERNAME=your_github_username
-GITHUB_TOKEN=your_github_pat
-DOCKERHUB_USERNAME=your_dockerhub_username
-DOCKERHUB_TOKEN=your_dockerhub_token
-```
+Each service pipeline runs against real Postgres, Qdrant, and WireMock instances via Docker Compose.
 
-**Pipelines:**
+</details>
 
-| Pipeline | Trigger | Description |
-|---|---|---|
-| `services/gateway` | Manual | Build, test, report coverage |
-| `services/search_service` | Manual | Build, test, report coverage |
-| `services/document_service` | Manual | Build, test, report coverage |
-| `services/user_service` | Manual | Build, test, report coverage |
-| `services/model_service` | Manual | Build, test, report coverage |
-| `build-and-deploy` | Manual | Build all images, push to GHCR, update Helm values |
+<details>
+<summary>GitHub Actions (Secondary)</summary>
 
-Each service pipeline uses Docker Compose with real Postgres, Qdrant, and WireMock instances — no mocks for infrastructure dependencies.
+Defined in `.github/workflows/`: mirrors the Jenkins pipelines.
 
-### GitHub Actions (Secondary)
-
-Defined in `.github/workflows/` — currently paused due to runner limits. Workflow files serve as the canonical CI definition for future cloud runner setup.
+</details>
 
 ---
 
