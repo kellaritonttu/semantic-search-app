@@ -7,52 +7,6 @@ variable "project" {
 }
 
 
-# —— Helm ——————————————————————————————————————————————————————————————————————
-
-variable "release_name" {
-  type        = string
-  description = "Helm release name"
-}
-
-variable "chart_path" {
-  type        = string
-  description = "Path to the Helm chart directory"
-}
-
-
-# —— App ———————————————————————————————————————————————————————————————————————
-
-variable "postgres_db" {
-  description = "PostgreSQL database name"
-  default     = "project_db"
-}
-
-variable "postgres_user" {
-  description = "PostgreSQL user"
-  default     = "admin"
-}
-
-variable "postgres_password" {
-  description = "PostgreSQL password"
-  sensitive   = true
-}
-
-variable "secret_key" {
-  description = "Secret Key for AUTH"
-  sensitive   = true
-}
-
-variable "OWNER_PASSWORD" {
-  description = "Owner user password"
-  sensitive   = true
-}
-
-variable "OWNER_USERNAME" {
-  description = "Owner user username"
-  sensitive   = true
-}
-
-
 # —— Network variables —————————————————————————————————————————————————————————
 
 variable "region" {
@@ -92,4 +46,37 @@ variable "machine_type" {
   type        = string
   description = "Node VM type"
   default     = "e2-micro"
+}
+
+
+# —— App ———————————————————————————————————————————————————————————————————————
+
+variable "postgres_db" {
+  description = "PostgreSQL database name"
+  default     = "project_db"
+}
+
+variable "postgres_user" {
+  description = "PostgreSQL user"
+  default     = "admin"
+}
+
+variable "postgres_password" {
+  description = "PostgreSQL password"
+  sensitive   = true
+}
+
+variable "secret_key" {
+  description = "Secret Key for AUTH"
+  sensitive   = true
+}
+
+variable "OWNER_PASSWORD" {
+  description = "Owner user password"
+  sensitive   = true
+}
+
+variable "OWNER_USERNAME" {
+  description = "Owner user username"
+  sensitive   = true
 }

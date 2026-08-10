@@ -59,15 +59,6 @@ resource "google_container_node_pool" "nodes" {
 }
 
 
-# —— Namespace —————————————————————————————————————————————————————————————————
-
-resource "kubernetes_namespace" "semantic_search" {
-  metadata {
-    name = local.namespace
-  }
-}
-
-
 # —— Static IP —————————————————————————————————————————————————————————————————
 
 resource "google_compute_address" "public_ip" {

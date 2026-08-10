@@ -3,7 +3,7 @@
 resource "kubernetes_secret" "postgres_secret" {
   metadata {
     name      = "postgres-secret"
-    namespace = kubernetes_namespace.semantic_search.metadata[0].name
+    namespace = kubernetes_namespace.app.metadata[0].name
   }
   data = {
     POSTGRES_DB       = var.postgres_db
@@ -19,7 +19,7 @@ resource "kubernetes_secret" "postgres_secret" {
 resource "kubernetes_secret" "auth_secret" {
   metadata {
     name      = "auth-secret"
-    namespace = kubernetes_namespace.semantic_search.metadata[0].name
+    namespace = kubernetes_namespace.app.metadata[0].name
   }
   data = {
     SECRET_KEY     = var.secret_key

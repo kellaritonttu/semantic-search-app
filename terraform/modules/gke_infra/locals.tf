@@ -14,5 +14,4 @@ locals {
   full_subnet_name    = "${local.resource_prefix}-subnet"
   full_node_pool_name = "${local.resource_prefix}-pool"
   full_ip_name        = "${local.resource_prefix}-ip"
-  namespace           = "${local.resource_prefix}-ns"
 }

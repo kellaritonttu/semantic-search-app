@@ -6,13 +6,10 @@ machine_type      = "e2-standard-2"
 init_node_count   = 1
 subnet_cidr       = "10.0.0.0/24"
 
-release_name      = "semantic-search"
-chart_path        = "../helm"
-
-postgres_db       = "db"
-postgres_user     = "admin"
-postgres_password = "password"
+postgres_db       = ""
+postgres_user     = ""
+postgres_password = ""
 
 secret_key        = ""
-OWNER_USERNAME    = "owner_username"
-OWNER_PASSWORD    = "owner_password"
+OWNER_USERNAME    = ""
+OWNER_PASSWORD    = ""
